@@ -543,23 +543,6 @@ DygraphInteraction.moveTouch = function(event, g, context) {
     didZoom = true;
   }
 
-  if (context.touchDirections.y) {
-    for (i = 0; i < 1  /*g.axes_.length*/; i++) {
-      var axis = g.axes_[i];
-      var logscale = g.attributes_.getForAxis("logscale", i);
-      if (logscale) {
-        // TODO(danvk): implement
-      } else {
-        var cFactor = c_init.dataY - swipe.dataY / yScale;
-        axis.valueRange = [
-          cFactor + (context.initialRange.y[0] - c_init.dataY) / yScale,
-          cFactor + (context.initialRange.y[1] - c_init.dataY) / yScale
-        ];
-        didZoom = true;
-      }
-    }
-  }
-
   g.drawGraph_(false);
 
   // We only call zoomCallback on zooms, not pans, to mirror desktop behavior.

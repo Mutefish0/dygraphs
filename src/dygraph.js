@@ -73,7 +73,7 @@ import RangeSelectorPlugin from './plugins/range-selector';
 
 import GVizChart from './dygraph-gviz';
 
-"use strict";
+
 
 /**
  * @class Creates an interactive, zoomable chart.
@@ -2542,6 +2542,8 @@ Dygraph.prototype.computeYAxisRanges_ = function(extremes) {
         // this skips invisible series
         if (!extremes.hasOwnProperty(series[j])) continue;
 
+        if (this.attributes_.series_[series[j]].options.overflow === "hidden") continue;
+
         // Only use valid extremes to stop null data series' from corrupting the scale.
         extremeMinY = extremes[series[j]][0];
         if (extremeMinY !== null) {
@@ -3135,7 +3137,7 @@ Dygraph.prototype.start_ = function() {
         req = new XMLHttpRequest();
       } else {
         // IE 5 and 6 will use the ActiveX control
-        req = new ActiveXObject("Microsoft.XMLHTTP");
+        //req = new ActiveXObject("Microsoft.XMLHTTP");
       }
 
       var caller = this;

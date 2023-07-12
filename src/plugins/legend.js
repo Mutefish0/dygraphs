@@ -307,7 +307,7 @@ Legend.defaultFormatter = function(data) {
       if (!series.isVisible) continue;
 
       if (html !== '') html += (sepLines ? '<br />' : ' ');
-      html += `<span style='font-weight: bold; color: ${series.color};'>${series.dashHTML} ${series.labelHTML}</span>`;
+      html += `<span style='color: ${series.color};'>${series.dashHTML} ${series.labelHTML}</span>`;
     }
     return html;
   }

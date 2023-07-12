@@ -521,11 +521,11 @@ DygraphInteraction.moveTouch = function(event, g, context) {
   if (touches.length == 1) {
     xScale = 1.0;
     yScale = 1.0;
-  } else if (touches.length >= 2) {
-    var initHalfWidth = (initialTouches[1].pageX - c_init.pageX);
+  } else if (touches.length >= 2 && initialTouches.length >= 2) {
+    var initHalfWidth = initialTouches[1].pageX - c_init.pageX;
     xScale = (touches[1].pageX - c_now.pageX) / initHalfWidth;
 
-    var initHalfHeight = (initialTouches[1].pageY - c_init.pageY);
+    var initHalfHeight = initialTouches[1].pageY - c_init.pageY;
     yScale = (touches[1].pageY - c_now.pageY) / initHalfHeight;
   }
 

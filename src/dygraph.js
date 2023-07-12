@@ -2250,6 +2250,7 @@ Dygraph.prototype.gatherDatasets_ = function(rolledSeries, dateWindow) {
   // because if they're stacked that's how we accumulate the values.
   var num_series = rolledSeries.length - 1;
   var series;
+
   for (seriesIdx = num_series; seriesIdx >= 1; seriesIdx--) {
     if (!this.visibility()[seriesIdx - 1]) continue;
 
@@ -2265,6 +2266,7 @@ Dygraph.prototype.gatherDatasets_ = function(rolledSeries, dateWindow) {
       // TODO(danvk): pass firstIdx and lastIdx directly to the renderer.
       firstIdx = null;
       lastIdx = null;
+
       for (sampleIdx = 0; sampleIdx < series.length; sampleIdx++) {
         if (series[sampleIdx][0] >= low && firstIdx === null) {
           firstIdx = sampleIdx;
@@ -2308,8 +2310,13 @@ Dygraph.prototype.gatherDatasets_ = function(rolledSeries, dateWindow) {
     }
 
     var seriesName = this.attr_("labels")[seriesIdx];
-    var seriesExtremes = this.dataHandler_.getExtremeYValues(series,
-        dateWindow, this.getBooleanOption("stepPlot", seriesName));
+    var seriesExtremes = this.dataHandler_.getExtremeYValues(
+      series,
+      dateWindow,
+      this.getBooleanOption("stepPlot", seriesName),
+      this.getOption("overflow", seriesName),
+      this.getOption("type", seriesName)
+    );
 
     var seriesPoints = this.dataHandler_.seriesToPoints(series,
         seriesName, boundaryIds[seriesIdx-1][0]);
@@ -2541,8 +2548,6 @@ Dygraph.prototype.computeYAxisRanges_ = function(extremes) {
       for (var j = 0; j < series.length; j++) {
         // this skips invisible series
         if (!extremes.hasOwnProperty(series[j])) continue;
-
-        if (this.attributes_.series_[series[j]].options.overflow === "hidden") continue;
 
         // Only use valid extremes to stop null data series' from corrupting the scale.
         extremeMinY = extremes[series[j]][0];

@@ -47,8 +47,8 @@ axes.prototype.layout = function(e) {
   var g = e.dygraph;
 
   if (g.getOptionForAxis('drawAxis', 'y')) {
-    var w = g.getOptionForAxis('axisLabelWidth', 'y') + 2 * g.getOptionForAxis('axisTickSize', 'y');
-    e.reserveSpaceLeft(w);
+    // var w = g.getOptionForAxis('axisLabelWidth', 'y') + 2 * g.getOptionForAxis('axisTickSize', 'y');
+    // e.reserveSpaceLeft(w);
   }
 
   if (g.getOptionForAxis('drawAxis', 'x')) {
@@ -205,47 +205,26 @@ axes.prototype.willDrawChart = function(e) {
         }
         // TODO: replace these with css classes?
         if (tick.axis === 0) {
-          label.style.left = (area.x - getAxisOption('axisLabelWidth') - getAxisOption('axisTickSize')) + 'px';
-          label.style.textAlign = 'right';
+          // label.style.left = (area.x - getAxisOption('axisLabelWidth') - getAxisOption('axisTickSize')) + 'px';
+          // label.style.textAlign = 'right';
+
+          
+
+          label.style.right = 0;
+          label.style.width = getAxisOption("axisTickSize") + 'px';
+            // area.x + area.w + getAxisOption("axisTickSize") + "px";
+          label.style.textAlign = "right";
+
         } else if (tick.axis == 1) {
-          label.style.left = (area.x + area.w +
-                              getAxisOption('axisTickSize')) + 'px';
-          label.style.textAlign = 'left';
+          // label.style.left = (area.x + area.w +
+          //                     getAxisOption('axisTickSize')) + 'px';
+          // label.style.textAlign = 'left';
         }
+
         label.style.width = getAxisOption('axisLabelWidth') + 'px';
         containerDiv.appendChild(label);
         that.ylabels_.push(label);
       });
-    }
-
-    // draw a vertical line on the left to separate the chart from the labels.
-    var axisX;
-    if (g.getOption('drawAxesAtZero')) {
-      var r = g.toPercentXCoord(0);
-      if (r > 1 || r < 0 || isNaN(r)) r = 0;
-      axisX = halfUp(area.x + r * area.w);
-    } else {
-      axisX = halfUp(area.x);
-    }
-
-    context.strokeStyle = g.getOptionForAxis('axisLineColor', 'y');
-    context.lineWidth = g.getOptionForAxis('axisLineWidth', 'y');
-
-    context.beginPath();
-    context.moveTo(axisX, halfDown(area.y));
-    context.lineTo(axisX, halfDown(area.y + area.h));
-    context.closePath();
-    context.stroke();
-
-    // if there's a secondary y-axis, draw a vertical line for that, too.
-    if (g.numAxes() == 2 && g.getOptionForAxis('drawAxis', 'y2')) {
-      context.strokeStyle = g.getOptionForAxis('axisLineColor', 'y2');
-      context.lineWidth = g.getOptionForAxis('axisLineWidth', 'y2');
-      context.beginPath();
-      context.moveTo(halfDown(area.x + area.w), halfDown(area.y));
-      context.lineTo(halfDown(area.x + area.w), halfDown(area.y + area.h));
-      context.closePath();
-      context.stroke();
     }
   }
 

@@ -514,7 +514,7 @@ DygraphInteraction.moveTouch = function(event, g, context) {
   var dataHeight = context.initialRange.y[0] - context.initialRange.y[1];
   swipe.dataX = (swipe.pageX / g.plotter_.area.w) * dataWidth;
   swipe.dataY = (swipe.pageY / g.plotter_.area.h) * dataHeight;
-  var xScale, yScale;
+  var xScale = 1.0, yScale = 1.0;
 
   // The residual bits are usually split into scale & rotate bits, but we split
   // them into x-scale and y-scale bits.

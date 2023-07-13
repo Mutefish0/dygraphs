@@ -73,7 +73,7 @@ grid.prototype.willDrawChart = function(e) {
         ctx.lineWidth = lineWidths[axis];
 
         x = halfUp(area.x);
-        y = halfDown(area.y + tick.pos * area.h);
+        y = halfDown(Math.max(area.y + tick.pos * area.h, 1));
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x + area.w, y);

@@ -94,6 +94,8 @@ export var numericTicks = function(a, b, pixels, opts, dygraph, vals) {
   var pixels_per_tick = /** @type{number} */(opts('pixelsPerLabel'));
   var ticks = [];
   var i, j, tickV, nTicks;
+  let fourTicksMode = opts('fourTicksMode');
+  const sigFigs = opts('sigFigs');
   if (vals) {
     for (i = 0; i < vals.length; i++) {
       ticks.push({v: vals[i]});
@@ -101,7 +103,11 @@ export var numericTicks = function(a, b, pixels, opts, dygraph, vals) {
   } else {
     // TODO(danvk): factor this log-scale block out into a separate function.
     if (opts("logscale")) {
-      nTicks  = Math.floor(pixels / pixels_per_tick);
+      if (fourTicksMode) {
+        nTicks = 4;
+      } else {
+        nTicks = Math.floor(pixels / pixels_per_tick);
+      }
       var minIdx = utils.binarySearch(a, PREFERRED_LOG_TICK_VALUES, 1);
       var maxIdx = utils.binarySearch(b, PREFERRED_LOG_TICK_VALUES, -1);
       if (minIdx == -1) {
@@ -116,18 +122,22 @@ export var numericTicks = function(a, b, pixels, opts, dygraph, vals) {
       if (maxIdx - minIdx >= nTicks / 4) {
         for (var idx = maxIdx; idx >= minIdx; idx--) {
           var tickValue = PREFERRED_LOG_TICK_VALUES[idx];
-          var pixel_coord = Math.log(tickValue / a) / Math.log(b / a) * pixels;
+          var pixel_coord =
+            (Math.log(tickValue / a) / Math.log(b / a)) * pixels;
           var tick = { v: tickValue };
           if (lastDisplayed === null) {
             lastDisplayed = {
-              tickValue : tickValue,
-              pixel_coord : pixel_coord
+              tickValue: tickValue,
+              pixel_coord: pixel_coord,
             };
           } else {
-            if (Math.abs(pixel_coord - lastDisplayed.pixel_coord) >= pixels_per_tick) {
+            if (
+              Math.abs(pixel_coord - lastDisplayed.pixel_coord) >=
+              pixels_per_tick
+            ) {
               lastDisplayed = {
-                tickValue : tickValue,
-                pixel_coord : pixel_coord
+                tickValue: tickValue,
+                pixel_coord: pixel_coord,
               };
             } else {
               tick.label = "";
@@ -140,8 +150,16 @@ export var numericTicks = function(a, b, pixels, opts, dygraph, vals) {
       }
     }
 
+    if (fourTicksMode && ticks.length === 0) {
+      const space = (b - a) / 3;
+      ticks.push({ v: a });
+      ticks.push({ v:  Number((space + a).toFixed(sigFigs)) });
+      ticks.push({ v: Number((space * 2 + a).toFixed(sigFigs)) });
+      ticks.push({ v: b });
+    }
+
     // ticks.length won't be 0 if the log scale function finds values to insert.
-    if (ticks.length === 0) {
+    if (!fourTicksMode && ticks.length === 0) {
       // Basic idea:
       // Try labels every 1, 2, 5, 10, 20, 50, 100, etc.
       // Calculate the resulting tick spacing (i.e. this.height_ / nTicks).
@@ -190,7 +208,7 @@ export var numericTicks = function(a, b, pixels, opts, dygraph, vals) {
       if (low_val > high_val) scale *= -1;
       for (i = 0; i <= nTicks; i++) {
         tickV = low_val + i * scale;
-        ticks.push( {v: tickV} );
+        ticks.push({ v: tickV });
       }
     }
   }

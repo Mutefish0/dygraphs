@@ -164,26 +164,27 @@ axes.prototype.willDrawChart = function(e) {
 
   if (g.getOptionForAxis('drawAxis', 'y') ||
       (g.numAxes() == 2 && g.getOptionForAxis('drawAxis', 'y2'))) {
-    if (layout.yticks && layout.yticks.length > 0) {
-      var num_axes = g.numAxes();
-      var getOptions = [makeOptionGetter('y'), makeOptionGetter('y2')];
-      layout.yticks.forEach(function (tick) {
-        if (tick.label === undefined) return;  // this tick only has a grid line.
-        x = area.x;
-        var sgn = 1;
-        var prec_axis = 'y1';
-        var getAxisOption = getOptions[0];
-        if (tick.axis == 1) {  // right-side y-axis
-          x = area.x + area.w;
-          sgn = -1;
-          prec_axis = 'y2';
-          getAxisOption = getOptions[1];
-        }
-        if (!getAxisOption('drawAxis')) return;
-        var fontSize = getAxisOption('axisLabelFontSize');
-        y = area.y + tick.pos * area.h;
+        if (layout.yticks && layout.yticks.length > 0) {
+          var num_axes = g.numAxes();
+          var getOptions = [makeOptionGetter("y"), makeOptionGetter("y2")];
+          layout.yticks.forEach(function (tick) {
+            if (tick.label === undefined) return; // this tick only has a grid line.
+            x = area.x;
+            var sgn = 1;
+            var prec_axis = "y1";
+            var getAxisOption = getOptions[0];
+            if (tick.axis == 1) {
+              // right-side y-axis
+              x = area.x + area.w;
+              sgn = -1;
+              prec_axis = "y2";
+              getAxisOption = getOptions[1];
+            }
+            if (!getAxisOption("drawAxis")) return;
+            var fontSize = getAxisOption("axisLabelFontSize");
+            y = area.y + tick.pos * area.h;
 
-        /* Tick marks are currently clipped, so don't bother drawing them.
+            /* Tick marks are currently clipped, so don't bother drawing them.
         context.beginPath();
         context.moveTo(halfUp(x), halfDown(y));
         context.lineTo(halfUp(x - sgn * that.attr_('axisTickSize')), halfDown(y));
@@ -191,41 +192,38 @@ axes.prototype.willDrawChart = function(e) {
         context.stroke();
         */
 
-        label = makeDiv(tick.label, 'y', num_axes == 2 ? prec_axis : null);
-        var top = (y - fontSize / 2);
-        if (top < 0) top = 0;
+            label = makeDiv(tick.label, "y", num_axes == 2 ? prec_axis : null);
+            var top = y - fontSize / 2;
+            if (top < 0) top = 0;
 
-        if (top + fontSize + 3 > canvasHeight) {
-          label.style.bottom = '0';
-        } else {
-          // The lowest tick on the y-axis often overlaps with the leftmost
-          // tick on the x-axis. Shift the bottom tick up a little bit to
-          // compensate if necessary.
-          label.style.top = Math.min(top, canvasHeight - (2 * fontSize)) + 'px';
+            if (top + fontSize + 3 > canvasHeight) {
+              label.style.bottom = "0";
+            } else {
+              // The lowest tick on the y-axis often overlaps with the leftmost
+              // tick on the x-axis. Shift the bottom tick up a little bit to
+              // compensate if necessary.
+              label.style.top =
+                Math.min(top, canvasHeight - 2 * fontSize) + "px";
+            }
+            // TODO: replace these with css classes?
+            if (tick.axis === 0) {
+              // label.style.left = (area.x - getAxisOption('axisLabelWidth') - getAxisOption('axisTickSize')) + 'px';
+              // label.style.textAlign = 'right';
+              label.style.right = 0;
+              label.style.width = getAxisOption("axisTickSize") + "px";
+              // area.x + area.w + getAxisOption("axisTickSize") + "px";
+              label.style.textAlign = "right";
+            } else if (tick.axis == 1) {
+              // label.style.left = (area.x + area.w +
+              //                     getAxisOption('axisTickSize')) + 'px';
+              // label.style.textAlign = 'left';
+            }
+
+            label.style.width = getAxisOption("axisLabelWidth") + "px";
+            containerDiv.appendChild(label);
+            that.ylabels_.push(label);
+          });
         }
-        // TODO: replace these with css classes?
-        if (tick.axis === 0) {
-          // label.style.left = (area.x - getAxisOption('axisLabelWidth') - getAxisOption('axisTickSize')) + 'px';
-          // label.style.textAlign = 'right';
-
-          
-
-          label.style.right = 0;
-          label.style.width = getAxisOption("axisTickSize") + 'px';
-            // area.x + area.w + getAxisOption("axisTickSize") + "px";
-          label.style.textAlign = "right";
-
-        } else if (tick.axis == 1) {
-          // label.style.left = (area.x + area.w +
-          //                     getAxisOption('axisTickSize')) + 'px';
-          // label.style.textAlign = 'left';
-        }
-
-        label.style.width = getAxisOption('axisLabelWidth') + 'px';
-        containerDiv.appendChild(label);
-        that.ylabels_.push(label);
-      });
-    }
   }
 
   if (g.getOptionForAxis('drawAxis', 'x')) {

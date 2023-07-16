@@ -21,20 +21,19 @@ Current bits of jankiness:
  *
  * @constructor
  */
-var grid = function() {
-};
+var grid = function () {};
 
-grid.prototype.toString = function() {
+grid.prototype.toString = function () {
   return "Gridline Plugin";
 };
 
-grid.prototype.activate = function(g) {
+grid.prototype.activate = function (g) {
   return {
-    willDrawChart: this.willDrawChart
+    willDrawChart: this.willDrawChart,
   };
 };
 
-grid.prototype.willDrawChart = function(e) {
+grid.prototype.willDrawChart = function (e) {
   // Draw the new X/Y grid. Lines appear crisper when pixels are rounded to
   // half-integers. This prevents them from drawing in two rows/cols.
   var g = e.dygraph;
@@ -42,26 +41,34 @@ grid.prototype.willDrawChart = function(e) {
   var layout = g.layout_;
   var area = e.dygraph.plotter_.area;
 
-  function halfUp(x)  { return Math.round(x) + 0.5; }
-  function halfDown(y){ return Math.round(y) - 0.5; }
+  function halfUp(x) {
+    return Math.round(x) + 0.5;
+  }
+  function halfDown(y) {
+    return Math.round(y) - 0.5;
+  }
 
   var x, y, i, ticks;
-  if (g.getOptionForAxis('drawGrid', 'y')) {
+  if (g.getOptionForAxis("drawGrid", "y")) {
     var axes = ["y", "y2"];
-    var strokeStyles = [], lineWidths = [], drawGrid = [], stroking = [], strokePattern = [];
+    var strokeStyles = [],
+      lineWidths = [],
+      drawGrid = [],
+      stroking = [],
+      strokePattern = [];
     for (var i = 0; i < axes.length; i++) {
-      drawGrid[i] = g.getOptionForAxis('drawGrid', axes[i]);
+      drawGrid[i] = g.getOptionForAxis("drawGrid", axes[i]);
       if (drawGrid[i]) {
-        strokeStyles[i] = g.getOptionForAxis('gridLineColor', axes[i]);
-        lineWidths[i] = g.getOptionForAxis('gridLineWidth', axes[i]);
-        strokePattern[i] = g.getOptionForAxis('gridLinePattern', axes[i]);
-        stroking[i] = strokePattern[i] && (strokePattern[i].length >= 2);
+        strokeStyles[i] = g.getOptionForAxis("gridLineColor", axes[i]);
+        lineWidths[i] = g.getOptionForAxis("gridLineWidth", axes[i]);
+        strokePattern[i] = g.getOptionForAxis("gridLinePattern", axes[i]);
+        stroking[i] = strokePattern[i] && strokePattern[i].length >= 2;
       }
     }
     ticks = layout.yticks;
     ctx.save();
     // draw grids for the different y axes
-    ticks.forEach(tick => {
+    ticks.forEach((tick) => {
       if (!tick.has_tick) return;
       var axis = tick.axis;
       if (drawGrid[axis]) {
@@ -73,7 +80,7 @@ grid.prototype.willDrawChart = function(e) {
         ctx.lineWidth = lineWidths[axis];
 
         x = halfUp(area.x);
-        y = halfDown(Math.max(area.y + tick.pos * area.h, 1));
+        y = halfDown(Math.max(area.y + tick.pos * area.h, 0.5));
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x + area.w, y);
@@ -86,17 +93,17 @@ grid.prototype.willDrawChart = function(e) {
   }
 
   // draw grid for x axis
-  if (g.getOptionForAxis('drawGrid', 'x')) {
+  if (g.getOptionForAxis("drawGrid", "x")) {
     ticks = layout.xticks;
     ctx.save();
-    var strokePattern = g.getOptionForAxis('gridLinePattern', 'x');
-    var stroking = strokePattern && (strokePattern.length >= 2);
+    var strokePattern = g.getOptionForAxis("gridLinePattern", "x");
+    var stroking = strokePattern && strokePattern.length >= 2;
     if (stroking) {
       if (ctx.setLineDash) ctx.setLineDash(strokePattern);
     }
-    ctx.strokeStyle = g.getOptionForAxis('gridLineColor', 'x');
-    ctx.lineWidth = g.getOptionForAxis('gridLineWidth', 'x');
-    ticks.forEach(tick => {
+    ctx.strokeStyle = g.getOptionForAxis("gridLineColor", "x");
+    ctx.lineWidth = g.getOptionForAxis("gridLineWidth", "x");
+    ticks.forEach((tick) => {
       if (!tick.has_tick) return;
       x = halfUp(area.x + tick.pos * area.w);
       y = halfDown(area.y + area.h);
@@ -112,7 +119,6 @@ grid.prototype.willDrawChart = function(e) {
   }
 };
 
-grid.prototype.destroy = function() {
-};
+grid.prototype.destroy = function () {};
 
 export default grid;

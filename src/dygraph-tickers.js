@@ -95,6 +95,8 @@ export var numericTicks = function(a, b, pixels, opts, dygraph, vals) {
   var ticks = [];
   var i, j, tickV, nTicks;
   let fourTicksMode = opts('fourTicksMode');
+  let twoTicksMode = opts('twoTicksMode');
+  let includeZero = opts('includeZero');
   const sigFigs = opts('sigFigs');
   if (vals) {
     for (i = 0; i < vals.length; i++) {
@@ -105,6 +107,8 @@ export var numericTicks = function(a, b, pixels, opts, dygraph, vals) {
     if (opts("logscale")) {
       if (fourTicksMode) {
         nTicks = 4;
+      } else if (twoTicksMode) {
+        nTicks = 2;
       } else {
         nTicks = Math.floor(pixels / pixels_per_tick);
       }
@@ -156,10 +160,25 @@ export var numericTicks = function(a, b, pixels, opts, dygraph, vals) {
       ticks.push({ v:  Number((space + a).toFixed(sigFigs)) });
       ticks.push({ v: Number((space * 2 + a).toFixed(sigFigs)) });
       ticks.push({ v: b });
+    } else if (twoTicksMode && ticks.length === 0) {
+      if (includeZero) {
+        if (a >= 0) {
+          ticks.push({ v: 0 });
+          ticks.push({ v: a });
+          ticks.push({ v: b });
+        } else {
+          ticks.push({ v: a });
+          ticks.push({ v: 0 });
+          ticks.push({ v: b });
+        }
+      } else {
+        ticks.push({ v: a });
+        ticks.push({ v: b });
+      }
     }
 
     // ticks.length won't be 0 if the log scale function finds values to insert.
-    if (!fourTicksMode && ticks.length === 0) {
+    if (!(fourTicksMode || twoTicksMode) && ticks.length === 0) {
       // Basic idea:
       // Try labels every 1, 2, 5, 10, 20, 50, 100, etc.
       // Calculate the resulting tick spacing (i.e. this.height_ / nTicks).

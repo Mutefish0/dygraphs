@@ -414,6 +414,11 @@ DygraphInteraction.endZoom = function(event, g, context) {
  */
 DygraphInteraction.startTouch = function(event, g, context) {
   event.preventDefault();  // touch browsers are all nice.
+
+  const timeInterval = g.getOption("timeInterval");
+
+  context.timeInterval = timeInterval;
+
   if (event.touches.length > 1) {
     // If the user ever puts two fingers down, it's not a double tap.
     context.startTimeForDoubleTapMs = null;
@@ -493,6 +498,8 @@ DygraphInteraction.moveTouch = function(event, g, context) {
 
   var c_now;
 
+  const timeInterval = context.timeInterval;
+
   // old and new centers.
   var c_init = context.initialPinchCenter;
   if (touches.length == 1) {
@@ -514,33 +521,34 @@ DygraphInteraction.moveTouch = function(event, g, context) {
   var dataHeight = context.initialRange.y[0] - context.initialRange.y[1];
   swipe.dataX = (swipe.pageX / g.plotter_.area.w) * dataWidth;
   swipe.dataY = (swipe.pageY / g.plotter_.area.h) * dataHeight;
-  var xScale = 1.0, yScale = 1.0;
+  var xScale = 1.0;
 
   // The residual bits are usually split into scale & rotate bits, but we split
   // them into x-scale and y-scale bits.
   if (touches.length == 1) {
     xScale = 1.0;
-    yScale = 1.0;
   } else if (touches.length >= 2 && initialTouches.length >= 2) {
     var initHalfWidth = initialTouches[1].pageX - c_init.pageX;
     xScale = (touches[1].pageX - c_now.pageX) / initHalfWidth;
-
-    var initHalfHeight = initialTouches[1].pageY - c_init.pageY;
-    yScale = (touches[1].pageY - c_now.pageY) / initHalfHeight;
   }
 
   // Clip scaling to [1/8, 8] to prevent too much blowup.
   xScale = Math.min(8, Math.max(0.125, xScale));
-  yScale = Math.min(8, Math.max(0.125, yScale));
 
   var didZoom = false;
   if (context.touchDirections.x) {
     var cFactor = c_init.dataX - swipe.dataX / xScale;
-    g.dateWindow_ = [
-      cFactor + (context.initialRange.x[0] - c_init.dataX) / xScale,
-      cFactor + (context.initialRange.x[1] - c_init.dataX) / xScale
-    ];
-    didZoom = true;
+
+
+    const range = (context.initialRange.x[1] - context.initialRange.x[0]) / xScale;
+
+    if (range < 200 * timeInterval && range >= 15 * timeInterval) {
+       g.dateWindow_ = [
+         cFactor + (context.initialRange.x[0] - c_init.dataX) / xScale,
+         cFactor + (context.initialRange.x[1] - c_init.dataX) / xScale,
+       ];
+       didZoom = true; 
+    }
   }
 
   g.drawGraph_(false);

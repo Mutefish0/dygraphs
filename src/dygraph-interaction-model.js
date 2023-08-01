@@ -439,6 +439,12 @@ DygraphInteraction.startTouch = function (event, g, context) {
     context.startTimeForDoubleTapMs = null;
   }
 
+  if (event.touches.length === 1) {
+    context.startTimeForSingleTapMs = Date.now();
+  } else {
+    context.startTimeForSingleTapMs = null;
+  }
+
   var touches = [];
   for (var i = 0; i < event.touches.length; i++) {
     var t = event.touches[i];
@@ -453,8 +459,6 @@ DygraphInteraction.startTouch = function (event, g, context) {
     });
   }
   context.initialTouches = touches;
-  context.startTime = Date.now();
-  context.touchMoved = false;
 
   if (touches.length == 1) {
     // This is just a swipe.
@@ -505,7 +509,7 @@ DygraphInteraction.startTouch = function (event, g, context) {
 DygraphInteraction.moveTouch = function (event, g, context) {
   // If the tap moves, then it's definitely not part of a double-tap.
   context.startTimeForDoubleTapMs = null;
-  context.touchMoved = true;
+  context.startTimeForSingleTapMs = null;
 
   var i,
     touches = [];
@@ -591,30 +595,26 @@ DygraphInteraction.moveTouch = function (event, g, context) {
  * @private
  */
 DygraphInteraction.endTouch = function (event, g, context) {
-  if (
-    event.changedTouches.length === 1 &&
-    Date.now() - context.startTime < 500 &&
-    !context.touchMoved
-  ) {
-    alert("tap~");
-  }
+  // if (
+  //   event.changedTouches.length === 1 &&
+  //   Date.now() - context.startTime < 500 &&
+  //   context.initialTouches.length === 1 &&
+  //   !context.touchMoved
+  // ) {
+  //   alert("tap1~", );
+  //   return;
+  // }
 
   if (event.touches.length !== 0) {
-    // if (this.getBooleanOption("stackedGraph")) {
-    //   closest = this.findStackedPoint(canvasx, canvasy);
-    // } else {
-    //   closest = this.findClosestPoint(canvasx, canvasy);
-    // }
-    // selectionChanged = this.setSelection(closest.row, closest.seriesName);
-
     // this is effectively a "reset"
     DygraphInteraction.startTouch(event, g, context);
-  } else if (event.changedTouches.length == 1) {
+  } else if (event.changedTouches.length === 1) {
     // Could be part of a "double tap"
     // The heuristic here is that it's a double-tap if the two touchend events
     // occur within 500ms and within a 50x50 pixel box.
     var now = new Date().getTime();
     var t = event.changedTouches[0];
+
     if (
       context.startTimeForDoubleTapMs &&
       now - context.startTimeForDoubleTapMs < 500 &&
@@ -628,6 +628,15 @@ DygraphInteraction.endTouch = function (event, g, context) {
       context.startTimeForDoubleTapMs = now;
       context.doubleTapX = t.screenX;
       context.doubleTapY = t.screenY;
+    }
+
+    if (
+      context.startTimeForSingleTapMs &&
+      now - context.startTimeForSingleTapMs < 400 &&
+      now - context.startTimeForSingleTapMs > 50
+    ) {
+      const closest = g.findClosestPoint(t.screenX, t.screenY);
+      g.setSelection(closest.row, closest.seriesName);
     }
   }
 };

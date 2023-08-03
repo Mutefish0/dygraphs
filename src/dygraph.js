@@ -1562,10 +1562,16 @@ Dygraph.prototype.findClosestPoint = function(domX, domY) {
     var points = this.layout_.points[setIdx];
     for (var i = 0; i < points.length; ++i) {
       point = points[i];
-      if (!utils.isValidPoint(point)) continue;
-      dx = point.canvasx - domX;
-      dy = point.canvasy - domY;
-      dist = dx * dx + dy * dy;
+      const distanceFn = this.getOption("distanceFn", point.name);
+      if (distanceFn) {
+        dist = distanceFn(this, point, domX, domY);
+      } else {
+        if (!utils.isValidPoint(point)) continue;
+        dx = point.canvasx - domX;
+        dy = point.canvasy - domY;
+        dist = dx * dx + dy * dy;
+      }
+
       if (dist < minDist) {
         minDist = dist;
         closestPoint = point;
@@ -1574,8 +1580,11 @@ Dygraph.prototype.findClosestPoint = function(domX, domY) {
       }
     }
   }
+
   var name = this.layout_.setNames[closestSeries];
+  
   return {
+    dist: minDist,
     row: closestRow,
     seriesName: name,
     point: closestPoint
@@ -2407,7 +2416,7 @@ Dygraph.prototype.renderGraph_ = function(is_initial_draw) {
 
   var e = {
     canvas: this.hidden_,
-    drawingContext: this.hidden_ctx_
+    drawingContext: this.hidden_ctx_,
   };
   this.cascadeEvents_('willDrawChart', e);
   this.plotter_.render();

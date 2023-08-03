@@ -263,7 +263,7 @@ Legend.generateLegendHTML = function(g, x, sel_points, oneEmWidth, row) {
       var seriesData = labelToSeries[pt.name];
       seriesData.y = pt.yval;
 
-      if ((pt.yval === 0 && !showZeros) || isNaN(pt.canvasy)) {
+      if ((pt.yval === 0 && !showZeros)) {
         seriesData.isVisible = false;
         continue;
       }
@@ -271,7 +271,8 @@ Legend.generateLegendHTML = function(g, x, sel_points, oneEmWidth, row) {
       var series = g.getPropertiesForSeries(pt.name);
       var yOptView = yOptViews[series.axis - 1];
       var fmtFunc = yOptView('valueFormatter');
-      var yHTML = fmtFunc.call(g, pt.yval, yOptView, pt.name, g, row, labels.indexOf(pt.name));
+      const type = g.getOption('type', pt.name);
+      var yHTML = fmtFunc.call(g, pt.yval, yOptView, pt.name, g, row, labels.indexOf(pt.name), type);
 
       utils.update(seriesData, {yHTML});
 
@@ -312,14 +313,14 @@ Legend.defaultFormatter = function(data) {
     return html;
   }
 
-  html = data.xHTML + ':';
+  html = `<span style="color:#999">${data.xHTML}</span>`;
   for (var i = 0; i < data.series.length; i++) {
     var series = data.series[i];
     if (!series.y && !series.yHTML) continue;
     if (!series.isVisible) continue;
     if (sepLines) html += '<br>';
     var cls = series.isHighlighted ? ' class="highlight"' : '';
-    html += `<span${cls}> <b><span style='color: ${series.color};'>${series.labelHTML}</span></b>:&#160;${series.yHTML}</span>`;
+    html += `<span${cls}><b><span style='color: ${series.color};'>${series.labelHTML}</span></b><span style="color:#999">&nbsp;${series.yHTML}</span></span>`;
   }
   return html;
 };

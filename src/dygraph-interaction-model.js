@@ -595,16 +595,6 @@ DygraphInteraction.moveTouch = function (event, g, context) {
  * @private
  */
 DygraphInteraction.endTouch = function (event, g, context) {
-  // if (
-  //   event.changedTouches.length === 1 &&
-  //   Date.now() - context.startTime < 500 &&
-  //   context.initialTouches.length === 1 &&
-  //   !context.touchMoved
-  // ) {
-  //   alert("tap1~", );
-  //   return;
-  // }
-
   if (event.touches.length !== 0) {
     // this is effectively a "reset"
     DygraphInteraction.startTouch(event, g, context);
@@ -623,7 +613,7 @@ DygraphInteraction.endTouch = function (event, g, context) {
       context.doubleTapY &&
       Math.abs(context.doubleTapY - t.screenY) < 50
     ) {
-      g.resetZoom();
+      // g.resetZoom();
     } else {
       context.startTimeForDoubleTapMs = now;
       context.doubleTapX = t.screenX;
@@ -636,7 +626,18 @@ DygraphInteraction.endTouch = function (event, g, context) {
       now - context.startTimeForSingleTapMs > 50
     ) {
       const closest = g.findClosestPoint(t.screenX, t.screenY);
-      g.setSelection(closest.row, closest.seriesName);
+
+      // reset
+      if (closest.dist > 6000) {
+        g.clearSelection();
+      } else {
+        if (g.lastRow_ !== closest.row || g.lastx_ !== closest.point.xval) {
+          g.lastx_ = closest.point.xval;
+          g.lastRow_ = closest.row;
+          g.selPoints_ = [closest.point];
+          g.updateSelection_(undefined);
+        }
+      }
     }
   }
 };

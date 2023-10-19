@@ -2319,6 +2319,15 @@ Dygraph.prototype.gatherDatasets_ = function(rolledSeries, dateWindow) {
     }
 
     var seriesName = this.attr_("labels")[seriesIdx];
+
+    series = this.dataHandler_.transformSeries
+      ? this.dataHandler_.transformSeries(
+          series,
+          this.getOption("type", seriesName),
+          this.getOption("log", seriesName)
+        )
+      : series;
+    
     var seriesExtremes = this.dataHandler_.getExtremeYValues(
       series,
       dateWindow,

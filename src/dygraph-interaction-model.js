@@ -625,7 +625,8 @@ DygraphInteraction.endTouch = function (event, g, context) {
       now - context.startTimeForSingleTapMs < 400 &&
       now - context.startTimeForSingleTapMs > 50
     ) {
-      const closest = g.findClosestPoint(t.screenX, t.screenY);
+      const [x, y] =  g.eventToDomCoords(event);
+      const closest = g.findClosestPoint(x, y);
 
       // reset
       if (closest.dist > 6000) {

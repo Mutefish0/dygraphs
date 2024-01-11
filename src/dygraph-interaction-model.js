@@ -568,7 +568,7 @@ DygraphInteraction.moveTouch = function (event, g, context) {
     const range =
       (context.initialRange.x[1] - context.initialRange.x[0]) / xScale;
 
-    if (range < 200 * timeInterval && range >= 15 * timeInterval) {
+    if (range < 200 * timeInterval) {
       g.dateWindow_ = [
         cFactor + (context.initialRange.x[0] - c_init.dataX) / xScale,
         cFactor + (context.initialRange.x[1] - c_init.dataX) / xScale,
@@ -625,7 +625,7 @@ DygraphInteraction.endTouch = function (event, g, context) {
       now - context.startTimeForSingleTapMs < 400 &&
       now - context.startTimeForSingleTapMs > 50
     ) {
-      const [x, y] =  g.eventToDomCoords(event);
+      const [x, y] = g.eventToDomCoords(event);
       const closest = g.findClosestPoint(x, y);
 
       // reset
